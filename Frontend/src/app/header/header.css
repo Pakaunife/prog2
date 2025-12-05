@@ -1,0 +1,34 @@
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: left;
+  gap: 0.5rem;
+  background: linear-gradient(90deg, #353332 60%, #3b3636 100%);
+  padding: 16px ;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.navbar a:hover {
+  background: #fff;
+  color: #a83232;
+  transform: translateY(-2px) scale(1.05);
+}

@@ -1,0 +1,25 @@
+<section>
+  <h2>Catalogo Prodotti</h2>
+  <input type="text" [(ngModel)]="ricerca" placeholder="Cerca..." />
+  <button (click)="cercaProdotti()">Cerca</button>
+
+  <div>
+    <label>Categorie:</label>
+    <button *ngFor="let cat of categorie" (click)="filtraCategoria(cat)">{{cat}}</button>
+  </div>
+  <div>
+    <label>Brand:</label>
+    <button *ngFor="let b of brand" (click)="filtraBrand(b)">{{b}}</button>
+  </div>
+
+  <div class="prodotti-list">
+    <div class="prodotto" *ngFor="let prodotto of prodotti">
+      <img [src]="prodotto.image_url" alt="{{prodotto.name}}" />
+      <h3>
+        <a [routerLink]="['/catalogo', prodotto.id]">{{prodotto.name}}</a>
+      </h3>
+      <p>{{prodotto.description}}</p>
+      <span>€{{prodotto.price}}</span>
+    </div>
+  </div>
+</section>
