@@ -1,25 +1,37 @@
-<section>
-  <h2>Catalogo Prodotti</h2>
-  <input type="text" [(ngModel)]="ricerca" placeholder="Cerca..." />
-  <button (click)="cercaProdotti()">Cerca</button>
-
-  <div>
-    <label>Categorie:</label>
-    <button *ngFor="let cat of categorie" (click)="filtraCategoria(cat)">{{cat}}</button>
-  </div>
-  <div>
-    <label>Brand:</label>
-    <button *ngFor="let b of brand" (click)="filtraBrand(b)">{{b}}</button>
-  </div>
-
-  <div class="prodotti-list">
-    <div class="prodotto" *ngFor="let prodotto of prodotti">
-      <img [src]="prodotto.image_url" alt="{{prodotto.name}}" />
-      <h3>
-        <a [routerLink]="['/catalogo', prodotto.id]">{{prodotto.name}}</a>
-      </h3>
-      <p>{{prodotto.description}}</p>
-      <span>€{{prodotto.price}}</span>
+<section class="vetrina">
+  <div class="titolo"><h2>Catalogo Prodotti</h2></div>
+  <div class="filtri">
+    <div>
+      <label for="categoriaSelect">Categorie:</label>
+      <!-- questa select ci permette di filtrare i prodotti per categoria -->
+      <select id="categoriaSelect" [(ngModel)]="categoriaSelezionata" (change)="filtraCategoria(categoriaSelezionata)">
+        <option *ngFor="let cat of categorie" [value]="cat.id">{{cat.name}}</option>
+      </select>
+    </div>
+    <div>
+      <label for="brandSelect">Brand:</label>
+      <!-- questa select ci permette di filtrare i prodotti per brand -->
+      <select id="brandSelect" [(ngModel)]="brandSelezionato" (change)="filtraBrand(brandSelezionato)">
+        <option *ngFor="let b of brand" [value]="b.id">{{b.name}}</option>
+      </select>
     </div>
   </div>
+  <div class="vetrina-list">
+  <ng-container *ngIf="prodotti.length > 0; else nessunRisultato">
+    <a
+      class="prodotto"
+      *ngFor="let prodotto of prodotti"
+      [routerLink]="['/catalogo', prodotto.id]"
+      style="text-decoration: none; color: inherit;"
+    >
+     <img [src]="'http://localhost:3000/images/prodotti/' + prodotto.image_url" alt="{{prodotto.name}}" />
+      <h3>{{prodotto.name}}</h3>
+      <span class="price">{{prodotto.price}}€</span>
+      <button type="button">Aggiungi al carrello</button>
+    </a>
+  </ng-container>
+  <ng-template #nessunRisultato>
+    <div class="nessun-risultato">Nessun risultato trovato</div>
+  </ng-template>
+</div>
 </section>

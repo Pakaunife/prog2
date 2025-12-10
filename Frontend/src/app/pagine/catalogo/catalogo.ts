@@ -2,14 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // <--- aggiungi questa importazione
+import { FormsModule } from '@angular/forms';
 
 interface Prodotto {
   id: number;
   name: string;
   brand: string;
   category: string;
-  description: string;
+  brand_id: string;
+  category_id: string;
   price: number;
   image_url: string;
 }
@@ -19,44 +20,65 @@ interface Prodotto {
   templateUrl: './catalogo.html',
   styleUrls: ['./catalogo.css'],
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterModule, FormsModule] // <--- aggiungi FormsModule qui
+  imports: [CommonModule, HttpClientModule, RouterModule, FormsModule]
 })
 export class Catalogo {
   prodotti: Prodotto[] = [];
-  categorie: string[] = [];
-  brand: string[] = [];
+  prodottiOriginali: Prodotto[] = [];
+  categorie: { id: number, name: string }[] = [];
+  brand: { id: number, name: string }[] = [];
   ricerca: string = '';
+  categoriaSelezionata: string = '0';
+  brandSelezionato: string = '0';
 
   constructor(private http: HttpClient) {
     this.caricaProdotti();
+    this.caricaCategorie();
+    this.caricaBrand();
   }
 
   caricaProdotti() {
     this.http.get<Prodotto[]>('/products').subscribe(data => {
-      this.prodotti = data;
-      this.categorie = [...new Set(data.map(p => p.category))];
-      this.brand = [...new Set(data.map(p => p.brand))];
-    });
-  }
-
-  filtraCategoria(categoria: string) {
-    this.http.get<Prodotto[]>(`/products/category/${categoria}`).subscribe(data => {
+      this.prodottiOriginali = data;
       this.prodotti = data;
     });
   }
 
-  filtraBrand(brand: string) {
-    this.http.get<Prodotto[]>(`/products/brand/${brand}`).subscribe(data => {
-      this.prodotti = data;
-    });
+  caricaCategorie() {
+  this.http.get<{ id: number, name: string }[]>('/products/categories').subscribe(data => {
+    this.categorie = [{ id: 0, name: 'Tutte le categorie' }, ...data];
+  });
+}
+
+  caricaBrand() {
+  this.http.get<{ id: number, name: string }[]>('/products/brands').subscribe(data => {
+    this.brand = [{ id: 0, name: 'Tutti i brand' }, ...data];
+  });
+}
+
+  filtraCategoria(categoriaId: string) {
+    this.categoriaSelezionata = categoriaId;
+    this.filtraProdotti();
   }
+
+  filtraBrand(brandId: string) {
+    this.brandSelezionato = brandId;
+    this.filtraProdotti();
+  }
+
+filtraProdotti() {
+  this.prodotti = this.prodottiOriginali.filter(p =>
+    (!this.categoriaSelezionata || this.categoriaSelezionata == '0' || p.category_id == this.categoriaSelezionata) &&
+    (!this.brandSelezionato || this.brandSelezionato == '0' || p.brand_id == this.brandSelezionato)
+  );
+}
 
   cercaProdotti() {
-    this.http.get<Prodotto[]>(`/products/search?q=${this.ricerca}`).subscribe(data => {
-      this.prodotti = data;
-    });
+    this.prodotti = this.prodottiOriginali.filter(p =>
+      p.name.toLowerCase().includes(this.ricerca.toLowerCase())
+    );
   }
-  // esempio per dettaglio prodotto
+
   caricaDettaglio(id: number) {
     this.http.get<Prodotto>(`/products/${id}`).subscribe(data => {
       // mostra i dettagli

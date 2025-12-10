@@ -1,0 +1,67 @@
+<section class="auth-container">
+  <h2>Registrati</h2>
+  <form (ngSubmit)="onRegister()">
+    <input
+      type="text"
+      [(ngModel)]="nome"
+      name="nome"
+      placeholder="Nome"
+      required
+      autocomplete="given-name"
+    />
+    <input
+      type="text"
+      [(ngModel)]="cognome"
+      name="cognome"
+      placeholder="Cognome"
+      required
+      autocomplete="family-name"
+    />
+    <input
+      type="email"
+      [(ngModel)]="email"
+      name="email"
+      placeholder="Email"
+      required
+      autocomplete="email"
+    />
+    <input
+      type="email"
+      [(ngModel)]="confermaEmail"
+      name="confermaEmail"
+      placeholder="Conferma Email"
+      required
+      autocomplete="email"
+    />
+    <input
+      type="password"
+      [(ngModel)]="password"
+      name="password"
+      placeholder="Password"
+      required
+      autocomplete="new-password"
+    />
+    <input
+      type="password"
+      [(ngModel)]="confermaPassword"
+      name="confermaPassword"
+      placeholder="Conferma Password"
+      required
+      autocomplete="new-password"
+    />
+    <input
+      type="tel"
+      [(ngModel)]="telefono"
+      name="telefono"
+      placeholder="Numero di telefono"
+      required
+      autocomplete="tel"
+      pattern="^[0-9+\s()-]{7,20}$"
+    />
+    <button type="submit">Crea account</button>
+  </form>
+  <div class="auth-link">
+    Hai già un account?
+    <a routerLink="/login" style="cursor: pointer">Accedi</a>
+  </div>
+</section>

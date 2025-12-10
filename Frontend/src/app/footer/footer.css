@@ -64,14 +64,18 @@
   margin-top: 8px;
 }
 .social .icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s, transform 0.2s;
   margin: 0 8px;
   vertical-align: middle;
-  transition: filter 0.2s;
+  display: inline-block;
 }
 .social a:hover .icon {
-  filter: brightness(0.7);
+  filter: brightness(0) invert(1) drop-shadow(0 2px 8px #fff);
+  transform: translateY(-4px) scale(1.08);
 }
 
 .footer-bottom {

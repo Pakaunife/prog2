@@ -1,6 +1,7 @@
 <section class="vetrina">
   <div class="titolo"><h2>Vetrina</h2></div>
   <div class="vetrina-list">
+    <!--  il RouterLink serve per navigare alla pagina del catalogo con l'id del prodotto -->
     <a
       class="prodotto"
       *ngFor="let prodotto of vetrina"
@@ -9,8 +10,6 @@
     >
       <img [src]="'http://localhost:3000/images/prodotti/' + prodotto.image_url" alt="{{prodotto.name}}" />
       <h3>{{prodotto.name}}</h3>
-      <p>{{prodotto.description}}</p>
-      <span class="brand">{{prodotto.brand}}</span>
       <span class="price">€{{prodotto.price}}</span>
       <button type="button">Aggiungi al carrello</button>
     </a>

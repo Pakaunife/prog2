@@ -11,7 +11,13 @@ class ProductDao {
 
   async getProductById(id) {
     const connection = await getConnection();
-    const sql = 'SELECT * FROM products WHERE id = $1';
+    const sql = `
+    SELECT p.*, b.name AS brand, c.name AS category
+    FROM products p
+    LEFT JOIN brand b ON p.brand_id = b.id
+    LEFT JOIN category c ON p.category_id = c.id
+    WHERE p.id = $1
+  `;
     const products = await execute(connection, sql, [id]);
     connection.done();
     return products[0];
@@ -19,7 +25,7 @@ class ProductDao {
 
   async getProductsByCategory(category) {
     const connection = await getConnection();
-    const sql = 'SELECT * FROM products WHERE category = $1';
+    const sql = 'SELECT * FROM products WHERE category_id = $1';
     const products = await execute(connection, sql, [category]);
     connection.done();
     return products;
@@ -27,7 +33,7 @@ class ProductDao {
 
   async getProductsByBrand(brand) {
     const connection = await getConnection();
-    const sql = 'SELECT * FROM products WHERE brand = $1';
+    const sql = 'SELECT * FROM products WHERE brand_id = $1';
     const products = await execute(connection, sql, [brand]);
     connection.done();
     return products;
@@ -49,6 +55,23 @@ class ProductDao {
   connection.done();
   return prodotti;
 }
+
+ async getAllCategories() {
+    const connection = await getConnection();
+    const sql = 'SELECT * FROM category';
+    const categories = await execute(connection, sql, []);
+    connection.done();
+    return categories;
+  }
+
+  async getAllBrands() {
+    const connection = await getConnection();
+    const sql = 'SELECT * FROM brand';
+    const brands = await execute(connection, sql, []);
+    connection.done();
+    return brands;
+  }
+
 }
 
 module.exports = new ProductDao();

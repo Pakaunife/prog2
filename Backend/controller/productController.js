@@ -1,4 +1,4 @@
-const productDao = require('../dao/productDao');
+const productDao = require('../DAO/productDAO');
 
 exports.getAll = async (req, res) => {
   try {
@@ -52,5 +52,24 @@ exports.getVetrina = async (req, res) => {
     res.json(prodotti);
   } catch (error) {
     res.status(500).json({ error: 'Errore nel recupero dei prodotti in vetrina' });
+  }
+};
+
+exports.getAllCategories = async (req, res) => {
+  try {
+    const categories = await productDao.getAllCategories();
+    res.json(categories);
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Errore nel recupero delle categorie' });
+  }
+};
+
+exports.getAllBrands = async (req, res) => {
+  try {
+    const brands = await productDao.getAllBrands();
+    res.json(brands);
+  } catch (error) {
+    res.status(500).json({ error: 'Errore nel recupero dei brand' });
   }
 };

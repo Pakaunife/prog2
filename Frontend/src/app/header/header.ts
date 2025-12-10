@@ -8,4 +8,17 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule]
 })
-export class Header { }
+export class Header {
+  showSignInMenu: boolean = false;
+
+  toggleSignInMenu(event: Event) {
+    event.stopPropagation();
+    this.showSignInMenu = !this.showSignInMenu;
+  }
+
+  ngOnInit() {
+    document.addEventListener('click', () => {
+      this.showSignInMenu = false;
+    });
+  }
+ }

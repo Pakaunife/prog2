@@ -8,7 +8,6 @@ interface Prodotto {
   name: string;
   brand: string;
   category: string;
-  description: string;
   price: number;
   image_url: string;
 }
@@ -30,7 +29,6 @@ export class Home {
   caricaVetrina() {
     this.http.get<Prodotto[]>('/products/vetrina').subscribe(data => {
       this.vetrina = data;
-      console.log('Prodotti vetrina:', this.vetrina);
     });
   }
 }

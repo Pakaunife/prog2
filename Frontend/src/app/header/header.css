@@ -16,7 +16,8 @@
   box-sizing: border-box;
 }
 
-.navbar a {
+.navbar a, .signin-trigger {
+  cursor: pointer;
   text-decoration: none;
   color: #ffffff;
   font-weight: 600;
@@ -27,8 +28,47 @@
   transition: background 0.2s, color 0.2s, transform 0.2s;
 }
 
-.navbar a:hover {
+.navbar a:hover, .signin-trigger:hover, .signin-menu a:hover {
   background: #fff;
   color: #a83232;
   transform: translateY(-2px) scale(1.05);
 }
+
+.signin-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.signin-menu {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 12px 24px;
+  display: none;
+  flex-direction: column;
+  z-index: 100;
+  min-width: 120px;
+}
+
+.signin-menu.open {
+  display: flex;
+}
+
+.signin-menu a {
+  color: #353332;
+  text-decoration: none;
+  margin-bottom: 8px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.signin-menu a:last-child {
+  margin-bottom: 0;
+}
+
+

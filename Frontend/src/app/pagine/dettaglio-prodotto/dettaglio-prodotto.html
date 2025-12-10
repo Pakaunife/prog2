@@ -1,0 +1,18 @@
+<section *ngIf="prodotto as p" class="dettaglio-prodotto">
+<div class="titolo"><h2>Dettaglio Prodotto</h2></div>
+  <div class="prodotto-card">
+    <img [src]="'http://localhost:3000/images/prodotti/' + p.image_url" alt="{{p.name}}" class="prodotto-img" />
+    <div class="prodotto-info">
+      <h2>{{p.name}}</h2>
+      <p class="brand"><strong>Brand:</strong> {{p.brand}}</p>
+      <p class="category"><strong>Categoria:</strong> {{p.category}}</p>
+      <p class="description"><strong>Descrizione:</strong> {{p.description}}</p>
+      <p class="price"><strong>Prezzo:</strong> €{{p.price}}</p>
+      <!-- aggiungi altre caratteristiche se servono -->
+      <button type="button" class="add-cart">Aggiungi al carrello</button>
+    </div>
+  </div>
+</section>
+<div *ngIf="!prodotto" class="not-found">
+  <p>Prodotto non trovato.</p>
+</div>

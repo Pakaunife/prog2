@@ -2,4 +2,12 @@
   <a routerLink="/home">Home</a>
   <a routerLink="/catalogo">Catalogo</a>
   <a routerLink="/wishlist">Wishlist</a>
+  <a routerLink="/carrello">Carrello</a>
+  <div class="signin-dropdown">
+    <span class="signin-trigger" (click)="toggleSignInMenu($event)">Sign in</span>
+    <div class="signin-menu" [class.open]="showSignInMenu" (click)="$event.stopPropagation()">
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Register</a>
+    </div>
+  </div>
 </nav>
