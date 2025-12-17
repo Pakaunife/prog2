@@ -1,7 +1,6 @@
 <nav class="navbar">
   <a routerLink="/home">Home</a>
   <a routerLink="/catalogo">Catalogo</a>
-  <a routerLink="/wishlist">Wishlist</a>
   <a routerLink="/carrello">Carrello</a>
   <div *ngIf="!isLoggedIn" class="signin-dropdown">
     <span class="signin-trigger" (click)="toggleSignInMenu($event)">Sign in</span>
