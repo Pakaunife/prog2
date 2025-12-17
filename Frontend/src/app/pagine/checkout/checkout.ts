@@ -1,0 +1,191 @@
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { OrdineService } from '../../services/ordine.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CarrelloService } from '../../services/carrello.service';
+// AGGIUNGI il service per gli indirizzi
+import { IndirizziService } from '../../services/indirizzi.service';
+
+@Component({
+  selector: 'app-checkout',
+  templateUrl: './checkout.html',
+  styleUrls: ['./checkout.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
+})
+export class CheckoutComponent {
+  indirizzo = '';
+  citta = '';
+  cap = '';
+  paese = '';
+  metodoPagamento = 'carta';
+  numeroCarta = '';
+  scadenza = '';
+  cvv = '';
+
+  carrello: any[] = [];
+  totale: number = 0;
+
+  // Variabili per gestione indirizzi
+  indirizzi: any[] = [];
+  indirizzoSelezionato: any = null;
+  mostraFormAggiunta = false;
+
+  constructor(
+    private ordineService: OrdineService,
+    private carrelloService: CarrelloService,
+    private indirizziService: IndirizziService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    if (this.carrelloService.isLoggedIn()) {
+      this.carrelloService.getCarrelloUtente().subscribe(res => {
+        this.carrello = res.map(item => ({
+          nome: item.name,
+          quantita: item.quantita,
+          prezzo: Number(item.price),
+          totale: Number(item.price) * item.quantita,
+          image_url: item.image_url
+        }));
+        this.totale = this.carrello.reduce((sum, i) => sum + i.totale, 0);
+      });
+      // Carica indirizzi salvati
+      this.caricaIndirizzi();
+    } else {
+      this.carrello = this.carrelloService.getCarrelloGuest().map((item: any) => ({
+        nome: item.nome,
+        quantita: item.quantita,
+        prezzo: item.prezzo,
+        totale: item.prezzo * item.quantita,
+        image_url: item.image_url
+      }));
+      this.totale = this.carrello.reduce((sum, i) => sum + i.totale, 0);
+    }
+  }
+
+  caricaIndirizzi() {
+    this.indirizziService.getIndirizziUtente().subscribe(data => {
+      this.indirizzi = data;
+      if (this.indirizzi.length > 0) {
+        this.indirizzoSelezionato = this.indirizzi[0];
+        this.aggiornaCampiIndirizzo();
+        this.mostraFormAggiunta = false;
+      } else
+      {
+        this.mostraFormAggiunta = true;
+      }
+    });
+  }
+
+  aggiornaCampiIndirizzo() {
+  if (this.indirizzoSelezionato) {
+    this.indirizzo = this.indirizzoSelezionato.via;
+    this.citta = this.indirizzoSelezionato.citta;
+    this.cap = this.indirizzoSelezionato.cap;
+    this.paese = this.indirizzoSelezionato.paese;
+  }
+}
+
+  salvaNuovoIndirizzo() {
+    const nuovo = {
+      via: this.indirizzo,
+      citta: this.citta,
+      cap: this.cap,
+      paese: this.paese
+    };
+    this.indirizziService.aggiungiIndirizzo(nuovo).subscribe(res => {
+      this.mostraFormAggiunta = false;
+      this.caricaIndirizzi();
+      // Pulisci i campi del form
+      this.indirizzo = '';
+      this.citta = '';
+      this.cap = '';
+      this.paese = '';
+    });
+  }
+
+  onCheckout() {
+    if (!this.isScadenzaValida()) {
+      alert('La data di scadenza della carta non è valida o la carta è scaduta.');
+      return;
+    }
+
+    // Usa l'indirizzo selezionato se presente, altrimenti i campi manuali
+    let datiSpedizione;
+    if (this.indirizzoSelezionato) {
+      datiSpedizione = {
+        indirizzo: this.indirizzoSelezionato.via,
+        citta: this.indirizzoSelezionato.citta,
+        cap: this.indirizzoSelezionato.cap,
+        paese: this.indirizzoSelezionato.paese
+      };
+    } else {
+      datiSpedizione = {
+        indirizzo: this.indirizzo,
+        citta: this.citta,
+        cap: this.cap,
+        paese: this.paese
+      };
+    }
+
+    const datiPagamento = {
+      metodo: this.metodoPagamento,
+      numeroCarta: this.numeroCarta,
+      scadenza: this.scadenza,
+      cvv: this.cvv
+    };
+    this.ordineService.creaOrdine(datiSpedizione, datiPagamento).subscribe({
+      next: () => {
+        alert('Ordine e pagamento effettuati!');
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        alert(err.error?.error || 'Errore durante il checkout');
+      }
+    });
+  }
+
+  formattaNumeroCarta() {
+    let value = this.numeroCarta.replace(/\D/g, '');
+    value = value.slice(0, 16);
+    this.numeroCarta = value.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  formattaScadenza() {
+    let value = this.scadenza.replace(/\D/g, '');
+    value = value.slice(0, 4);
+    if (value.length > 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2);
+    }
+    this.scadenza = value;
+  }
+
+  isScadenzaValida(): boolean {
+    const match = this.scadenza.match(/^(\d{2})\/(\d{2})$/);
+    if (!match) return false;
+    const mese = parseInt(match[1], 10);
+    const anno = parseInt(match[2], 10);
+    if (mese < 1 || mese > 12) return false;
+    const now = new Date();
+    const annoCorrente = now.getFullYear() % 100;
+    const meseCorrente = now.getMonth() + 1;
+    if (anno > annoCorrente) return true;
+    if (anno === annoCorrente && mese >= meseCorrente) return true;
+    return false;
+  }
+
+  pulisciCVV() {
+    this.cvv = this.cvv.replace(/[^0-9]/g, '').slice(0, 4);
+  }
+
+  soloNumeri(event: KeyboardEvent) {
+    if (
+      !/[0-9]/.test(event.key) &&
+      !['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(event.key)
+    ) {
+      event.preventDefault();
+    }
+  }
+}

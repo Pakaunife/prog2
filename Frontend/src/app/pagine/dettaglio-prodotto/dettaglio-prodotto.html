@@ -9,7 +9,7 @@
       <p class="description"><strong>Descrizione:</strong> {{p.description}}</p>
       <p class="price"><strong>Prezzo:</strong> €{{p.price}}</p>
       <!-- aggiungi altre caratteristiche se servono -->
-      <button type="button" class="add-cart">Aggiungi al carrello</button>
+      <button type="button" class="add-cart" (click)="aggiungiAlCarrello(p)">Aggiungi al carrello</button>
     </div>
   </div>
 </section>

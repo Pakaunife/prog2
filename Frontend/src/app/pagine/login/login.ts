@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +17,10 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
   onLogin() {
-    this.http.post('http://localhost:3000/auth/login', {
-      email: this.email,
-      password: this.password
-    }).subscribe({
+    this.authService.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/home']),
       error: () => alert('Credenziali non valide')
     });

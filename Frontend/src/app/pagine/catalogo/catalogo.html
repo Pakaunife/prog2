@@ -27,7 +27,7 @@
      <img [src]="'http://localhost:3000/images/prodotti/' + prodotto.image_url" alt="{{prodotto.name}}" />
       <h3>{{prodotto.name}}</h3>
       <span class="price">{{prodotto.price}}€</span>
-      <button type="button">Aggiungi al carrello</button>
+      <button type="button" (click)="aggiungiAlCarrello(prodotto); $event.stopPropagation(); $event.preventDefault();">Aggiungi al carrello</button>
     </a>
   </ng-container>
   <ng-template #nessunRisultato>

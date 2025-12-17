@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CarrelloService } from '../../services/carrello.service';
 
 interface Prodotto {
   id: number;
@@ -31,7 +32,7 @@ export class Catalogo {
   categoriaSelezionata: string = '0';
   brandSelezionato: string = '0';
 
-  constructor(private http: HttpClient) {
+  constructor(private carrelloService: CarrelloService, private http: HttpClient) {
     this.caricaProdotti();
     this.caricaCategorie();
     this.caricaBrand();
@@ -84,4 +85,16 @@ filtraProdotti() {
       // mostra i dettagli
     });
   }
+  aggiungiAlCarrello(prodotto: any) {
+    const res = this.carrelloService.addToCart(prodotto, 1);
+    if (res && res.subscribe) {
+      res.subscribe({
+        next: () => alert('Prodotto aggiunto al carrello!'),
+        error: () => alert('Errore durante l\'aggiunta al carrello')
+      });
+    } else {
+      alert('Prodotto aggiunto al carrello!');
+    }
+  }
+  
 }

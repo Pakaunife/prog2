@@ -71,4 +71,23 @@
   margin-bottom: 0;
 }
 
+.logout-btn {
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  margin-left: 0.1rem;
+}
+.logout-btn:hover {
+  background: #fff;
+  color: #a83232;
+  transform: translateY(-2px) scale(1.05);
+}
 

@@ -71,6 +71,13 @@ class ProductDao {
     connection.done();
     return brands;
   }
+  
+  async updateDisponibilita(prodottoId, nuovaDisponibilita) {
+  const connection = await getConnection();
+  const sql = 'UPDATE products SET disponibilita = $1 WHERE id = $2';
+  await execute(connection, sql, [nuovaDisponibilita, prodottoId]);
+  connection.done();
+}
 
 }
 

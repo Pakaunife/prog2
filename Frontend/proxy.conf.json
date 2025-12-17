@@ -1,4 +1,8 @@
 {
+  "/auth": {
+    "target": "http://localhost:3000",
+    "secure": false
+  },
   "/products": {
     "target": "http://localhost:3000",
     "secure": false,
@@ -8,6 +12,18 @@
     "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true
-  }
+  },
+  "/cart": {
+    "target": "http://localhost:3000",
+    "secure": false
+  },
+   "/orders": {
+    "target": "http://localhost:3000",
+    "secure": false
+  },
+    "/indirizzi": {
+      "target": "http://localhost:3000",
+      "secure": false
+    }
  
 }

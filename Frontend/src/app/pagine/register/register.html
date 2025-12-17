@@ -18,6 +18,36 @@
       autocomplete="family-name"
     />
     <input
+      type="date"
+      [(ngModel)]="data_nascita"
+      name="data_nascita"
+      placeholder="Data di nascita"
+      required
+      max="{{ today }}"
+    />
+    <select
+      [(ngModel)]="sesso"
+      name="sesso"
+      required
+    >
+      <option value="" disabled selected>Sesso</option>
+      <option value="M">Maschio</option>
+      <option value="F">Femmina</option>
+      <option value="Altro">Altro</option>
+      <option value="Non specificato">Non specificato</option>
+    </select>
+
+    <input
+      type="tel"
+      [(ngModel)]="telefono"
+      name="telefono"
+      placeholder="Numero di telefono"
+      required
+      autocomplete="tel"
+      pattern="^[0-9+\s()-]{7,20}$"
+      maxlength="13"
+    />
+    <input
       type="email"
       [(ngModel)]="email"
       name="email"
@@ -48,15 +78,6 @@
       placeholder="Conferma Password"
       required
       autocomplete="new-password"
-    />
-    <input
-      type="tel"
-      [(ngModel)]="telefono"
-      name="telefono"
-      placeholder="Numero di telefono"
-      required
-      autocomplete="tel"
-      pattern="^[0-9+\s()-]{7,20}$"
     />
     <button type="submit">Crea account</button>
   </form>

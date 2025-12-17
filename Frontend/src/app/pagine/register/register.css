@@ -52,6 +52,10 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+.auth-container input[type="date"]::-webkit-calendar-picker-indicator 
+{
+  cursor: pointer;
+}
 
 .auth-container button:hover {
   background: #0056b3;
@@ -73,4 +77,38 @@
 
 .auth-link a:hover {
   color: #0056b3;
+}
+/* Modern select per la selezione del sesso */
+.auth-container select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #fafbfc;
+  color: #222;
+  margin-bottom: 0.5rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  appearance: none;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.auth-container select:focus {
+  border: 1.5px solid #007bff;
+  background: #fff;
+}
+
+.auth-container select option {
+  color: #222;
+  background: #fff;
+}
+
+
+.auth-container select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='16' height='16' fill='gray' xmlns='http://www.w3.org/2000/svg'><path d='M4 6l4 4 4-4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
 }
