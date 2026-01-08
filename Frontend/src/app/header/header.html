@@ -11,4 +11,5 @@
   </div>
   <button *ngIf="isLoggedIn" (click)="logout()" class="logout-btn">Logout</button>
   <a routerLink="/profilo" *ngIf="isLoggedIn" class="profile-link">Profilo</a>
+  <button *ngIf="isAdmin()" (click)="vaiAreaAdmin()" class="logout-btn">Area Admin</button>
 </nav>

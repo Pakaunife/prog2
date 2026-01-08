@@ -2,14 +2,14 @@
 const { getConnection, execute } = require('../connection/DB');
 
 class OrderDao {
- async createOrder(userId, totale, indirizzoId, stato = 'In elaborazione') {
+ async createOrder(userId, totale, indirizzoId, stato = 'In elaborazione', dettagli_spedizione = 'in attesa di spedizione') {
   const connection = await getConnection();
   const sql = `
-    INSERT INTO ordine (user_id, totale, indirizzo_id, stato)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO ordine (user_id, totale, indirizzo_id, stato, dettagli_spedizione)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *
   `;
-  const result = await execute(connection, sql, [userId, totale, indirizzoId, stato]);
+  const result = await execute(connection, sql, [userId, totale, indirizzoId, stato, dettagli_spedizione]);
   connection.done();
   return result[0];
 }
@@ -50,6 +50,16 @@ class OrderDao {
     connection.done();
     return items;
   }
+
+async aggiornaStatoOrdine(orderId, stato, dettagliSpedizione) {
+  console.log('Aggiorno nel DB:', { orderId, stato, dettagliSpedizione });
+  const connection = await getConnection();
+  const sql = 'UPDATE ordine SET stato = $1, dettagli_spedizione = $2 WHERE id = $3';
+  await execute(connection, sql, [stato, dettagliSpedizione, orderId]);
+  connection.done();
 }
+  
+}
+
 
 module.exports = new OrderDao();

@@ -77,12 +77,18 @@ export class CarrelloComponent implements OnInit {
     if (this.carrelloService.isLoggedIn()) {
       this.carrelloService.aggiornaQuantitaUtente(prodottoId, nuovaQuantita).subscribe({
         next: (res) => {
+          const item = this.carrello.find(i => i.prodottoId === prodottoId);
+          if (item) item.quantita = nuovaQuantita;
+          this.calcolaTotale();
         },
         error: (err) => {
           alert('Errore durante l\'aggiornamento della quantità');}
       });
     } else {
-      this.carrelloService.aggiornaQuantitaGuest(prodottoId, nuovaQuantita);
+        this.carrelloService.aggiornaQuantitaGuest(prodottoId, nuovaQuantita);
+        const item = this.carrello.find(i => i.prodottoId === prodottoId);
+        if (item) item.quantita = nuovaQuantita;
+        this.calcolaTotale();
     }
   }
 

@@ -24,6 +24,7 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const indirizziRoutes = require('./routes/indirizziRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 
@@ -34,6 +35,7 @@ app.use('/auth', authRoutes);
 app.use('/cart', cartRoutes);
 app.use('/orders', orderRoutes);
 app.use('/indirizzi', indirizziRoutes);
+app.use('/admin', adminRoutes);
 
 // Avvio del server
 app.listen(PORT, () => {

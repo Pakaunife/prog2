@@ -15,13 +15,20 @@
         <span class="stato ordine-valore">{{ ordine.stato }}</span>
       </div>
       <div>
+        <span class="ordine-label">Dettagli spedizione:</span>
+        <span class="ordine-valore">{{ ordine.dettagli_spedizione }}</span>
+      <div>
+
+      <div class="indirizzo">
+      <span class="ordine-label">Spedito a:</span>
+      <span class="ordine-valore"> {{ ordine.indirizzo }} </span>
+      </div>
+
+      <div>
         <span class="ordine-label">Totale:</span>
         <span class="totale ordine-valore">€{{ ordine.totale | number:'1.2-2' }}</span>
       </div>
-    </div>
-    <div class="indirizzo">
-      <span class="ordine-label">Spedito a:</span>
-      <span class="ordine-valore"> {{ ordine.indirizzo }} </span>
+      
     </div>
     <h3 class="prodotti-titolo">Prodotti acquistati</h3>
     <div class="prodotti">

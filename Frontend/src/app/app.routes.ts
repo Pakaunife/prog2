@@ -8,6 +8,8 @@ import { CarrelloComponent } from './pagine/carrello/carrello';
 import { CheckoutComponent } from './pagine/checkout/checkout';
 import { ProfiloComponent } from './pagine/profilo/profilo';
 import { OrdineDettaglioComponent } from './pagine/dettaglio-ordine/dettaglio-ordine';
+import { Admin } from './pagine/admin/admin';
+import { AdminGuard } from './services/admin.guard';
 
 // in queto file definiamo le rotte dell'applicazione per poter navigare tra le pagine
 export const routes: Routes = [
@@ -20,6 +22,7 @@ export const routes: Routes = [
   { path: 'carrello', component: CarrelloComponent},
   { path: 'checkout', component: CheckoutComponent},
   { path: 'profilo', component: ProfiloComponent},
-  { path: 'ordine/:id', component: OrdineDettaglioComponent}
+  { path: 'ordine/:id', component: OrdineDettaglioComponent},
+  { path: 'admin', component: Admin, canActivate: [AdminGuard] }
    
 ];

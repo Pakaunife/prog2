@@ -19,6 +19,7 @@ exports.createOrder = async (req, res) => {
     totale += item.price * item.quantita;
   }
 
+
   // Crea ordine
   const ordine = await orderDAO.createOrder(userId, totale, indirizzoId, 'In elaborazione');
 

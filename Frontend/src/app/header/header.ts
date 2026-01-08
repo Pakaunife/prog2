@@ -35,4 +35,13 @@ export class Header {
       this.showSignInMenu = false;
     });
   }
+  
+  isAdmin(): boolean {
+  return localStorage.getItem('ruolo')?.toLowerCase() === 'admin';
+}
+
+vaiAreaAdmin() {
+  this.router.navigate(['/admin']);
+}
+
  }
