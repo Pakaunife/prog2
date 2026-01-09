@@ -75,7 +75,6 @@ updateProduct(id: number, product: any) {
 }
 
 
-
   getAuthHeaders() {
     const token = localStorage.getItem('token');
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -135,6 +134,8 @@ updateProduct(id: number, product: any) {
       error: () => this.ordiniPerUtente[userId] = []
     });
   }
+
+  
   apriDettaglioOrdine(ordine: any) {
   this.ordineDettaglio = { ...ordine };
   this.nuovoStatoOrdine = ordine.stato;

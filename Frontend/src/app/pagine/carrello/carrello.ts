@@ -32,7 +32,7 @@ export class CarrelloComponent implements OnInit {
     private router: Router,
     private carrelloService: CarrelloService
   ) {}
-
+  
   ngOnInit() {
     this.isLoggedIn = !!localStorage.getItem('token');
     this.loadCarrello();

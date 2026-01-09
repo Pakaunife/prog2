@@ -89,6 +89,8 @@
         </tbody>
       </table>
     </section>
+
+    
     <section class="admin-card" *ngIf="sezione === 'prodotti'">
     <h2>Gestione Prodotti</h2>
     <form #productForm="ngForm" (ngSubmit)="addProduct(productForm.value)">
@@ -140,6 +142,8 @@
         </tr>
       </tbody>
     </table>
+
+
     <!-- Modale modifica prodotto -->
     <div class="modal-backdrop" *ngIf="prodottoEdit" (click)="prodottoEdit = null"></div>
     <div class="modal" *ngIf="prodottoEdit">
@@ -168,6 +172,8 @@
       </div>
     </div>
   </section>
+
+    <!-- Modale dettaglio ordine -->
     <div class="modal-backdrop" *ngIf="ordineDettaglio" (click)="ordineDettaglio = null"></div>
 <div class="modal" *ngIf="ordineDettaglio">
   <div class="modal-content" (click)="$event.stopPropagation()">
