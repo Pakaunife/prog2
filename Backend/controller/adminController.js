@@ -50,3 +50,86 @@ exports.unblockUser = async (req, res) => {
   }
 };
 
+exports.addProduct = async (req, res) => {
+  try {
+    const result = await adminDAO.addProduct(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const result = await adminDAO.updateProduct(req.params.id, req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.setProductBlocked = async (req, res) => {
+  try {
+    await AdminDAO.setProductBlocked(req.params.id, req.body.bloccato);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updateProductStock = async (req, res) => {
+  try {
+    const result = await adminDAO.updateProductStock(req.params.id, req.body.disponibilita);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.addCategory = async (req, res) => {
+  try {
+    const result = await adminDAO.addCategory(req.body.name);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.addBrand = async (req, res) => {
+  try {
+    const result = await adminDAO.addBrand(req.body.name);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  try {
+    const result = await adminDAO.getAllCategories();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getBrands = async (req, res) => {
+  try {
+    const result = await adminDAO.getAllBrands();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    const result = await adminDAO.getAllProducts();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+

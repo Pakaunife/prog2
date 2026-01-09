@@ -19,12 +19,62 @@ export class Admin implements OnInit {
   ordineDettaglio: any = null;
   nuovoStatoOrdine: string = '';
   dettagliSpedizione: string = '';
+  sezione: string = 'utenti';
+  prodotti: any[] = [];
+  prodottoEdit: any = null;
+  categorie: any[] = [];
+  brand: any[] = [];
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.caricaUtenti();
+      this.caricaUtenti();
+      this.caricaProdotti();
+      this.caricaCategorie();
+      this.caricaBrand();
   }
+
+  caricaCategorie() {
+  this.http.get<any[]>('/admin/category', { headers: this.getAuthHeaders() }).subscribe({
+    next: categorie => this.categorie = categorie,
+    error: () => this.categorie = []
+  });
+}
+
+caricaBrand() {
+  this.http.get<any[]>('/admin/brand', { headers: this.getAuthHeaders() }).subscribe({
+    next: brand => this.brand = brand,
+    error: () => this.brand = []
+  });
+}
+
+  caricaProdotti() {
+  this.http.get<any[]>('/admin/products', { headers: this.getAuthHeaders() }).subscribe({
+    next: prodotti => this.prodotti = prodotti,
+    error: () => this.prodotti = []
+  });
+}
+
+addProduct(product: any) {
+  this.http.post('/admin/product', product, { headers: this.getAuthHeaders() }).subscribe({
+    next: () => this.caricaProdotti()
+  });
+}
+
+editProduct(prodotto: any) {
+  this.prodottoEdit = { ...prodotto };
+}
+
+updateProduct(id: number, product: any) {
+  this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
+    next: () => {
+      this.caricaProdotti();
+      this.prodottoEdit = null;
+    }
+  });
+}
+
+
 
   getAuthHeaders() {
     const token = localStorage.getItem('token');

@@ -37,6 +37,130 @@ class AdminDAO {
     await execute(connection, sql, [userId]);
     connection.done();
   }
+
+  async addProduct(product) {
+    const connection = await getConnection();
+    const sql = `
+      INSERT INTO products
+        (name, brand_id, category_id, description, price, promo, image_url, bloccato, in_vetrina, disponibilita)
+      VALUES
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING *`;
+    const params = [
+      product.name,
+      product.brand_id,
+      product.category_id,
+      product.description,
+      product.price,
+      product.promo,
+      product.image_url,
+      product.bloccato || false,
+      product.in_vetrina || false,
+      product.disponibilita || 0
+    ];
+    const result = await execute(connection, sql, params);
+    connection.done();
+    return result;
+  }
+
+
+  async updateProduct(id, product) {
+    const connection = await getConnection();
+    const sql = `
+      UPDATE products SET
+        name = $1,
+        brand_id = $2,
+        category_id = $3,
+        description = $4,
+        price = $5,
+        promo = $6,
+        image_url = $7,
+        bloccato = $8,
+        in_vetrina = $9,
+        disponibilita = $10
+      WHERE id = $11
+      RETURNING *`;
+    const params = [
+      product.name,
+      product.brand_id,
+      product.category_id,
+      product.description,
+      product.price,
+      product.promo,
+      product.image_url,
+      product.bloccato,
+      product.in_vetrina,
+      product.disponibilita,
+      id
+    ];
+    const result = await execute(connection, sql, params);
+    connection.done();
+    return result;
+  }
+
+  // Blocca/Sblocca prodotto
+  async setProductBlocked(id, blocked) {
+    const connection = await getConnection();
+    const sql = 'UPDATE products SET bloccato = $1 WHERE id = $2';
+    await execute(connection, sql, [blocked, id]);
+    connection.done();
+  }
+
+  // Aggiorna disponibilità magazzino
+  async updateProductStock(id, disponibilita) {
+    const connection = await getConnection();
+    const sql = 'UPDATE products SET disponibilita = $1 WHERE id = $2 RETURNING *';
+    const result = await execute(connection, sql, [disponibilita, id]);
+    connection.done();
+    return result;
+  }
+
+  // Aggiungi categoria
+  async addCategory(name) {
+    const connection = await getConnection();
+    const sql = 'INSERT INTO category (name) VALUES ($1) RETURNING *';
+    const result = await execute(connection, sql, [name]);
+    connection.done();
+    return result;
+  }
+
+  // Aggiungi brand
+  async addBrand(name) {
+    const connection = await getConnection();
+    const sql = 'INSERT INTO brand (name) VALUES ($1) RETURNING *';
+    const result = await execute(connection, sql, [name]);
+    connection.done();
+    return result;
+  }
+
+  async getAllCategories() {
+  const connection = await getConnection();
+  const sql = 'SELECT id, name FROM category';
+  const result = await execute(connection, sql, []);
+  connection.done();
+  return result;
+}
+
+async getAllBrands() {
+  const connection = await getConnection();
+  const sql = 'SELECT id, name FROM brand';
+  const result = await execute(connection, sql, []);
+  connection.done();
+  return result;
+}
+async getAllProducts() {
+  const connection = await getConnection();
+  const sql = `
+    SELECT p.*, c.name AS category_name, b.name AS brand_name
+    FROM products p
+    LEFT JOIN category c ON p.category_id = c.id
+    LEFT JOIN brand b ON p.brand_id = b.id
+  `;
+  const result = await execute(connection, sql, []);
+  connection.done();
+  return result;
+}
+
 }
 
 module.exports = new AdminDAO();

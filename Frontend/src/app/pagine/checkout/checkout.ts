@@ -15,10 +15,12 @@ import { IndirizziService } from '../../services/indirizzi.service';
   imports: [CommonModule, FormsModule]
 })
 export class CheckoutComponent {
+  destinatario = '';
   indirizzo = '';
   citta = '';
   cap = '';
   paese = '';
+  telefono = '';
   metodoPagamento = 'carta';
   numeroCarta = '';
   scadenza = '';
@@ -81,7 +83,8 @@ export class CheckoutComponent {
 
   aggiornaCampiIndirizzo() {
   if (this.indirizzoSelezionato) {
-    this.indirizzo = this.indirizzoSelezionato.via;
+    this.destinatario = this.indirizzoSelezionato.nome_destinatario;
+    this.indirizzo = this.indirizzoSelezionato.indirizzo;
     this.citta = this.indirizzoSelezionato.citta;
     this.cap = this.indirizzoSelezionato.cap;
     this.paese = this.indirizzoSelezionato.paese;
@@ -90,19 +93,23 @@ export class CheckoutComponent {
 
   salvaNuovoIndirizzo() {
     const nuovo = {
-      via: this.indirizzo,
+      nome_destinatario: this.destinatario,
+      indirizzo: this.indirizzo,
       citta: this.citta,
       cap: this.cap,
-      paese: this.paese
+      paese: this.paese,
+      telefono: this.telefono
     };
     this.indirizziService.aggiungiIndirizzo(nuovo).subscribe(res => {
       this.mostraFormAggiunta = false;
       this.caricaIndirizzi();
       // Pulisci i campi del form
+      this.destinatario = '';
       this.indirizzo = '';
       this.citta = '';
       this.cap = '';
       this.paese = '';
+      this.telefono = '';
     });
   }
 
@@ -112,23 +119,19 @@ export class CheckoutComponent {
       return;
     }
 
-    // Usa l'indirizzo selezionato se presente, altrimenti i campi manuali
-    let datiSpedizione;
-    if (this.indirizzoSelezionato) {
-      datiSpedizione = {
-        indirizzo: this.indirizzoSelezionato.via,
+   
+    
+      const datiSpedizione = {
+        indirizzo_id: this.indirizzoSelezionato.id,
+        nome_destinatario: this.indirizzoSelezionato.nome_destinatario,
+        indirizzo: this.indirizzoSelezionato.indirizzo,
         citta: this.indirizzoSelezionato.citta,
         cap: this.indirizzoSelezionato.cap,
-        paese: this.indirizzoSelezionato.paese
+        paese: this.indirizzoSelezionato.paese,
+        telefono: this.indirizzoSelezionato.telefono
       };
-    } else {
-      datiSpedizione = {
-        indirizzo: this.indirizzo,
-        citta: this.citta,
-        cap: this.cap,
-        paese: this.paese
-      };
-    }
+    
+    
 
     const datiPagamento = {
       metodo: this.metodoPagamento,

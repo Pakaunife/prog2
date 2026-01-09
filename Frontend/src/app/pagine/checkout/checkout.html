@@ -34,7 +34,7 @@
 <div *ngIf="indirizzi && indirizzi.length > 0">
     <label for="indirizzoSelezionato">Scegli indirizzo:</label>
     <select [(ngModel)]="indirizzoSelezionato" name="indirizzoSelezionato" required (ngModelChange)="aggiornaCampiIndirizzo()">
-      <option *ngFor="let ind of indirizzi" [ngValue]="ind">{{ind.via}}, {{ind.citta}}, {{ind.cap}}, {{ind.paese}}</option>
+      <option *ngFor="let ind of indirizzi" [ngValue]="ind"> {{ind.nome_destinatario}}, {{ind.indirizzo}}, {{ind.citta}}, {{ind.cap}}, {{ind.paese}}, {{ind.telefono}}</option>
     </select>
     <div class="button-group">
       <button type="button" (click)="mostraFormAggiunta = true">Aggiungi indirizzo</button>
@@ -43,10 +43,12 @@
 
   <!-- Se non ci sono indirizzi, mostra direttamente il form di aggiunta -->
   <div *ngIf="indirizzi.length === 0 || mostraFormAggiunta">
+    <input type="text" placeholder="Destinatario" [(ngModel)]="destinatario" name="destinatario" required>
     <input type="text" placeholder="Indirizzo" [(ngModel)]="indirizzo" name="indirizzo" required>
     <input type="text" placeholder="Città" [(ngModel)]="citta" name="citta" required>
     <input type="text" placeholder="CAP" [(ngModel)]="cap" name="cap" required>
     <input type="text" placeholder="Paese" [(ngModel)]="paese" name="paese" required>
+    <input type="text" placeholder="Telefono" [(ngModel)]="telefono" name="telefono" required>
     <div class="button-group">
       <button type="button" (click)="salvaNuovoIndirizzo()">Salva indirizzo</button>
       <button type="button" (click)="mostraFormAggiunta = false" *ngIf="indirizzi.length > 0">Annulla</button>

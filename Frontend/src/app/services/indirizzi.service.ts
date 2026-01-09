@@ -13,7 +13,7 @@ export class IndirizziService {
     return this.http.get<any[]>('/indirizzi', { headers });
   }
 
-  aggiungiIndirizzo(indirizzo: any): Observable<any> {
+  aggiungiIndirizzo(indirizzo: any){
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.post<any>('/indirizzi', indirizzo, { headers });

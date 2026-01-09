@@ -2,14 +2,26 @@
   <aside class="admin-sidebar">
     <h3>Admin</h3>
     <ul>
-      <li class="active">
+      <li [class.active]="sezione === 'utenti'" (click)="sezione = 'utenti'">
         <span>👤</span> Gestione Utenti
       </li>
+      <li [class.active]="sezione === 'prodotti'" (click)="sezione = 'prodotti'">
+      <span>📦</span> Gestione Prodotti
+    </li>
+    <li [class.active]="sezione === 'categorie'" (click)="sezione = 'categorie'">
+      <span>🏷️</span> Categorie
+    </li>
+    <li [class.active]="sezione === 'brand'" (click)="sezione = 'brand'">
+      <span>🏭</span> Brand
+    </li>
+    <li [class.active]="sezione === 'magazzino'" (click)="sezione = 'magazzino'">
+      <span>📊</span> Magazzino
+    </li>
     </ul>
   </aside>
 
   <main class="admin-main">
-    <section class="admin-card">
+    <section class="admin-card" *ngIf="sezione === 'utenti'">
       <h2>Gestione Utenti</h2>
       <div *ngIf="loading">Caricamento...</div>
       <div *ngIf="errore">{{ errore }}</div>
@@ -77,6 +89,85 @@
         </tbody>
       </table>
     </section>
+    <section class="admin-card" *ngIf="sezione === 'prodotti'">
+    <h2>Gestione Prodotti</h2>
+    <form #productForm="ngForm" (ngSubmit)="addProduct(productForm.value)">
+      <input name="name" ngModel placeholder="Nome" required>
+    <select name="brand_id" ngModel placeholder="Brand" required>
+      <option value="" disabled selected>Brand</option>
+        <option *ngFor="let b of brand" [ngValue]="b.id">{{ b.name }}</option>
+      </select>
+      <select name="category_id" ngModel placeholder="Categoria"  required>
+        <option value="" disabled selected>Categoria</option>
+        <option *ngFor="let c of categorie" [ngValue]="c.id">{{ c.name }}</option>
+      </select>
+      <input name="description" ngModel placeholder="Descrizione">
+       <input name="disponibilita" ngModel type="number" placeholder="Disponibilità">
+      <input name="price" ngModel type="number" step="0.01" placeholder="Prezzo" required>
+      <input name="image_url" ngModel placeholder="URL immagine">
+      <label><input name="promo" ngModel type="checkbox"> Promo</label>
+      <label><input name="bloccato" ngModel type="checkbox"> Bloccato</label>
+      <label><input name="in_vetrina" ngModel type="checkbox"> In vetrina</label>
+      <button type="submit">Aggiungi Prodotto</button>
+    </form>
+    <table *ngIf="prodotti.length">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Brand</th>
+          <th>Categoria</th>
+          <th>Prezzo</th>
+          <th>Promo</th>
+          <th>Disponibilità</th>
+          <th>Stato</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let prodotto of prodotti">
+          <td>{{ prodotto.id }}</td>
+          <td>{{ prodotto.name }}</td>
+          <td>{{ prodotto.brand_name }}</td>
+          <td>{{ prodotto.category_name }}</td>
+          <td>{{ prodotto.price | number:'1.2-2' }}</td>
+          <td>{{ prodotto.promo ? 'Sì' : 'No' }}</td>
+          <td>{{ prodotto.disponibilita }}</td>
+          <td>{{ prodotto.bloccato ? 'Bloccato' : 'Attivo' }}</td>
+          <td>
+            <button (click)="editProduct(prodotto)">Modifica</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- Modale modifica prodotto -->
+    <div class="modal-backdrop" *ngIf="prodottoEdit" (click)="prodottoEdit = null"></div>
+    <div class="modal" *ngIf="prodottoEdit">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h4>Modifica Prodotto #{{ prodottoEdit.id }}</h4>
+        <form #editForm="ngForm" (ngSubmit)="updateProduct(prodottoEdit.id, editForm.value)">
+          <input name="name" [(ngModel)]="prodottoEdit.name" placeholder="Nome" required>
+          <select name="brand_id" [(ngModel)]="prodottoEdit.brand_id" required>
+          <option *ngFor="let b of brand" [ngValue]="b.id">{{ b.name }}</option>
+        </select>
+        <select name="category_id" [(ngModel)]="prodottoEdit.category_id" required>
+          <option *ngFor="let c of categorie" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+          <input name="description" [(ngModel)]="prodottoEdit.description" placeholder="Descrizione">
+          <input name="price" [(ngModel)]="prodottoEdit.price" type="number" step="0.01" placeholder="Prezzo" required>
+          <input name="disponibilita" [(ngModel)]="prodottoEdit.disponibilita" type="number" placeholder="Disponibilità">
+          <input name="image_url" [(ngModel)]="prodottoEdit.image_url" placeholder="URL immagine">
+          <label><input name="promo" [(ngModel)]="prodottoEdit.promo" type="checkbox"> Promo</label>
+          <label><input name="bloccato" [(ngModel)]="prodottoEdit.bloccato" type="checkbox"> Bloccato</label>
+          <label><input name="in_vetrina" [(ngModel)]="prodottoEdit.in_vetrina" type="checkbox"> In vetrina</label>
+          <div class="modal-actions">
+            <button type="submit">Salva</button>
+            <button type="button" (click)="prodottoEdit = null">Annulla</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
     <div class="modal-backdrop" *ngIf="ordineDettaglio" (click)="ordineDettaglio = null"></div>
 <div class="modal" *ngIf="ordineDettaglio">
   <div class="modal-content" (click)="$event.stopPropagation()">

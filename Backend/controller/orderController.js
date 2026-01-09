@@ -5,7 +5,7 @@ const productDAO = require('../DAO/productDAO');
 
 exports.createOrder = async (req, res) => {
   const userId = req.user.id;
-  const { indirizzoId } = req.body;
+  const indirizzoId  = req.body.spedizione.indirizzo_id;
   // Prendi il carrello utente
   const cart = await cartDAO.getCartByUser(userId);
   if (!cart.length) return res.status(400).json({ error: 'Carrello vuoto' });
