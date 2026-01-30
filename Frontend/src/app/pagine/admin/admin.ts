@@ -24,6 +24,10 @@ export class Admin implements OnInit {
   prodottoEdit: any = null;
   categorie: any[] = [];
   brand: any[] = [];
+  selectedFile: File | null = null;
+  showScontoSelect = false;
+  showScontoEditSelect = false;
+
 
   constructor(private http: HttpClient) {}
 
@@ -56,22 +60,85 @@ caricaBrand() {
 }
 
 addProduct(product: any) {
-  this.http.post('/admin/product', product, { headers: this.getAuthHeaders() }).subscribe({
-    next: () => this.caricaProdotti()
-  });
+
+  product.promo = !!product.promo;
+  product.bloccato = !!product.bloccato;
+  product.in_vetrina = !!product.in_vetrina;
+
+  if (this.selectedFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(',')[1];
+      this.http.post('/admin/product', {
+        ...product,
+        imageBase64: base64,
+        imageFileName: this.selectedFile!.name,
+        image_url: this.selectedFile!.name // se vuoi anche nel form
+      }, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => {
+          this.caricaProdotti();
+          this.selectedFile = null;
+        }
+      });
+    };
+    reader.readAsDataURL(this.selectedFile);
+  } else {
+    this.http.post('/admin/product', product, { headers: this.getAuthHeaders() }).subscribe({
+      next: () => this.caricaProdotti()
+    });
+  }
 }
 
 editProduct(prodotto: any) {
   this.prodottoEdit = { ...prodotto };
+  this.showScontoEditSelect = !!this.prodottoEdit.promo;
 }
-
+triggerFileInput(fileInput: HTMLInputElement) {
+  fileInput.click();
+}
 updateProduct(id: number, product: any) {
+
+  if (this.selectedFile) {
+    // Leggi la nuova immagine come base64 e invia tutto
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(',')[1];
+      product.imageBase64 = base64;
+      product.imageFileName = this.selectedFile!.name;
+      product.image_url = this.selectedFile!.name;
+      this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => {
+          this.caricaProdotti();
+          this.prodottoEdit = null;
+          this.selectedFile = null;
+        }
+      });
+    };
+    reader.readAsDataURL(this.selectedFile);
+  } else {
+    // Nessuna nuova immagine: mantieni la vecchia
+    product.image_url = this.prodottoEdit.image_url;
+    this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
+      next: () => {
+        this.caricaProdotti();
+        this.prodottoEdit = null;
+      }
+    });
+  }
   this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
     next: () => {
       this.caricaProdotti();
       this.prodottoEdit = null;
     }
   });
+}
+
+rimuoviProdotto(id: number) {
+  if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
+    this.http.delete(`/admin/product/${id}`, { headers: this.getAuthHeaders() }).subscribe({
+      next: () => this.caricaProdotti()
+    });
+  }
 }
 
 
@@ -172,5 +239,21 @@ rimuoviUtente(userId: number) {
     });
   }
 }
+
+onFileSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  this.selectedFile = input.files?.[0] ?? null;
+}
+
+onPromoChange(form: any) {
+  this.showScontoSelect = form.value.promo;
+  if (!this.showScontoSelect) form.value.sconto = 0;
+}
+
+onPromoEditChange() {
+  this.showScontoEditSelect = !!this.prodottoEdit?.promo;
+  if (!this.showScontoEditSelect) this.prodottoEdit.sconto = 0;
+}
+
 
 }

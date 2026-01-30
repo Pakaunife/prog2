@@ -17,7 +17,7 @@ app.use('/images/prodotti', express.static(path.join(__dirname, 'immagini/prodot
 
 
 // Middleware per parsing JSON
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');

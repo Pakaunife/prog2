@@ -14,6 +14,8 @@ interface Prodotto {
   category_id: string;
   price: number;
   image_url: string;
+   promo?: boolean;   
+  sconto?: number;
 }
 
 @Component({
@@ -86,15 +88,20 @@ filtraProdotti() {
     });
   }
   aggiungiAlCarrello(prodotto: any) {
-    const res = this.carrelloService.addToCart(prodotto, 1);
-    if (res && res.subscribe) {
-      res.subscribe({
-        next: () => alert('Prodotto aggiunto al carrello!'),
-        error: () => alert('Errore durante l\'aggiunta al carrello')
-      });
-    } else {
-      alert('Prodotto aggiunto al carrello!');
-    }
+  let prezzoFinale = prodotto.price;
+  if (prodotto.promo && (prodotto.sconto || 0) > 0) {
+    prezzoFinale = +(prodotto.price * (1 - (prodotto.sconto || 0) / 100)).toFixed(2);
   }
+  const prodottoCarrello = { ...prodotto, prezzoFinale };
+  const res = this.carrelloService.addToCart(prodottoCarrello, 1);
+  if (res && res.subscribe) {
+    res.subscribe({
+      next: () => alert('Prodotto aggiunto al carrello!'),
+      error: () => alert('Errore durante l\'aggiunta al carrello')
+    });
+  } else {
+    alert('Prodotto aggiunto al carrello!');
+  }
+}
   
 }

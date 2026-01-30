@@ -27,6 +27,7 @@ router.get('/brand', verifyToken, isAdmin, adminController.getBrands);
 
 //deletes
 router.delete('/users/:userId', verifyToken, isAdmin, adminController.rimuoviUtente);
+router.delete('/product/:id', verifyToken, isAdmin, adminController.deleteProduct);
 
 
 

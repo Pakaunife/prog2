@@ -1,5 +1,7 @@
 const adminDAO = require('../DAO/adminDAO');
 const orderDAO = require('../DAO/orderDAO');
+const fs = require('fs');
+const path = require('path');
 
 exports.getAllUsers = async (req, res) => {
   const users = await adminDAO.getAllUsers();
@@ -51,7 +53,15 @@ exports.unblockUser = async (req, res) => {
 };
 
 exports.addProduct = async (req, res) => {
-  try {
+ try {
+    if (req.body.imageBase64 && req.body.imageFileName) {
+      const buffer = Buffer.from(req.body.imageBase64, 'base64');
+      const filePath = path.join(__dirname, '../immagini/prodotti', req.body.imageFileName);
+      fs.writeFileSync(filePath, buffer);
+      req.body.image_url = req.body.imageFileName;
+    }
+    delete req.body.imageBase64;
+    delete req.body.imageFileName;
     const result = await adminDAO.addProduct(req.body);
     res.json(result);
   } catch (err) {
@@ -60,13 +70,33 @@ exports.addProduct = async (req, res) => {
 };
 
 exports.updateProduct = async (req, res) => {
-  try {
+try {
+    // Salva nuova immagine se presente
+    if (req.body.imageBase64 && req.body.imageFileName) {
+      const buffer = Buffer.from(req.body.imageBase64, 'base64');
+      const filePath = path.join(__dirname, '../immagini/prodotti', req.body.imageFileName);
+      fs.writeFileSync(filePath, buffer);
+      req.body.image_url = req.body.imageFileName;
+    }
+    delete req.body.imageBase64;
+    delete req.body.imageFileName;
     const result = await adminDAO.updateProduct(req.params.id, req.body);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.deleteProduct = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await adminDAO.deleteProduct(id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 exports.setProductBlocked = async (req, res) => {
   try {

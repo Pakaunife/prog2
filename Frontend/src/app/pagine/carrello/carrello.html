@@ -17,12 +17,12 @@
           <img [src]="'http://localhost:3000/images/prodotti/' + item.image_url"  alt="{{item.nome}}" width="50" style="vertical-align: middle; margin-right: 8px;">
           {{item.nome}}
         </td>
-        <td>{{item.prezzo}}€</td>
+        <td>{{ item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo }}€</td>
         <td>
           <input type="number" [value]="item.quantita" min="1" [max]="item.disponibilita"
             (change)="aggiornaQuantita(item.prodottoId, $event.target.valueAsNumber)">
         </td>
-        <td>{{item.prezzo * item.quantita}}€</td>
+        <td>{{ (item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo) * item.quantita }}€</td>
         <td>
           <button (click)="rimuovi(item)">Rimuovi</button>
         </td>

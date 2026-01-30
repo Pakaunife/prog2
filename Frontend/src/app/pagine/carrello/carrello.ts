@@ -12,6 +12,9 @@ interface CarrelloItem {
   quantita: number;
   disponibilita: number;
   image_url: string;
+  prezzoFinale?: number;
+  promo?: boolean;    
+  sconto?: number; 
 }
 
 @Component({
@@ -21,6 +24,7 @@ interface CarrelloItem {
   standalone: true,
   imports: [CommonModule, HttpClientModule]
 })
+
 export class CarrelloComponent implements OnInit {
   carrello: CarrelloItem[] = [];
   totale: number = 0;
@@ -36,6 +40,7 @@ export class CarrelloComponent implements OnInit {
   ngOnInit() {
     this.isLoggedIn = !!localStorage.getItem('token');
     this.loadCarrello();
+    console.log(this.carrello)
     
   }
 
@@ -47,14 +52,23 @@ export class CarrelloComponent implements OnInit {
 }).subscribe({
   next: (res) => {
     // Mappa i campi ai nomi usati nel frontend e trasforma price in numero
-    this.carrello = res.map(item => ({
-      prodottoId: item.prodotto_id,
-      nome: item.name,
-      prezzo: Number(item.price),
-      quantita: item.quantita,
-      disponibilita: item.disponibilita,
-      image_url: item.image_url
-    }));
+    this.carrello = res.map(item => {
+  let prezzoFinale = Number(item.price);
+  if (item.promo && item.sconto && item.sconto > 0) {
+    prezzoFinale = +(Number(item.price) * (1 - item.sconto / 100)).toFixed(2);
+  }
+  return {
+    prodottoId: item.prodotto_id,
+    nome: item.name,
+    prezzo: Number(item.price),
+    quantita: item.quantita,
+    disponibilita: item.disponibilita,
+    image_url: item.image_url,
+     promo: item.promo,      
+    sconto: item.sconto,  
+    prezzoFinale: prezzoFinale
+  };
+});
     this.calcolaTotale();
   },
   error: () => {
@@ -64,13 +78,22 @@ export class CarrelloComponent implements OnInit {
 });
     } else {
       // Carrello da localStorage
-      this.carrello = JSON.parse(localStorage.getItem('carrello') || '[]');
+  this.carrello = (JSON.parse(localStorage.getItem('carrello') || '[]') as CarrelloItem[]).map(item => {
+  let prezzoFinale = item.prezzo;
+  if (item.promo && item.sconto && item.sconto > 0) {
+    prezzoFinale = +(item.prezzo * (1 - item.sconto / 100)).toFixed(2);
+  }
+  return { ...item, prezzoFinale };
+});
       this.calcolaTotale();
     }
   }
 
   calcolaTotale() {
-    this.totale = this.carrello.reduce((sum, item) => sum + item.prezzo * item.quantita, 0);
+    this.totale = this.carrello.reduce(
+  (sum, item) => sum + (item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo) * item.quantita,
+  0
+);
   }
 
   aggiornaQuantita(prodottoId: number, nuovaQuantita: number) {
@@ -112,14 +135,9 @@ export class CarrelloComponent implements OnInit {
   }
 }
 
-  //da correggere e spiegare meglio
+  
   salvaCarrello() {
-    if (this.isLoggedIn) {
-      // Aggiorna backend (puoi fare una chiamata per ogni modifica o batch)
-      // Esempio: this.http.post('/cart/add', ...)
-    } else {
       localStorage.setItem('carrello', JSON.stringify(this.carrello));
-    }
   }
 
 

@@ -11,6 +11,8 @@ interface Prodotto {
   category: string;
   price: number;
   image_url: string;
+   promo?: boolean;
+  sconto?: number;
 }
 
 @Component({

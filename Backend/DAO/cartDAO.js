@@ -5,7 +5,7 @@ class CartDao {
   async getCartByUser(userId) {
     const connection = await getConnection();
     const sql = `
-      SELECT c.*, p.name, p.price, p.image_url, p.disponibilita
+      SELECT c.*, p.name, p.price, p.promo, p.sconto, p.image_url, p.disponibilita
       FROM cart c
       JOIN products p ON c.prodotto_id = p.id
       WHERE c.user_id = $1

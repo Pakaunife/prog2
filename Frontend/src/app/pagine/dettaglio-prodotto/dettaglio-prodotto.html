@@ -7,8 +7,18 @@
       <p class="brand"><strong>Brand:</strong> {{p.brand}}</p>
       <p class="category"><strong>Categoria:</strong> {{p.category}}</p>
       <p class="description"><strong>Descrizione:</strong> {{p.description}}</p>
-      <p class="price"><strong>Prezzo:</strong> €{{p.price}}</p>
-      <!-- aggiungi altre caratteristiche se servono -->
+          <p class="price"><strong>Prezzo:</strong>
+        <span *ngIf="p.promo && p.sconto != null && p.sconto > 0">
+          <span class="prezzo-originale">€{{p.price}}</span>
+          <span class="prezzo-scontato">
+            €{{ (p.price * (1 - p.sconto! / 100) | number:'1.2-2') }}
+          </span>
+          <span class="badge-sconto">-{{p.sconto}}%</span>
+        </span>
+        <span *ngIf="!p.promo || !(p.sconto != null && p.sconto > 0)">
+          €{{p.price}}
+        </span>
+      </p>
       <button type="button" class="add-cart" (click)="aggiungiAlCarrello(p)">Aggiungi al carrello</button>
     </div>
   </div>

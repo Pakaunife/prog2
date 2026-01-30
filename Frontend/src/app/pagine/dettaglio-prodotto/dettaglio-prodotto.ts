@@ -12,7 +12,9 @@ interface Prodotto {
   description: string;
   price: number;
   image_url: string;
-  // aggiungi altri campi se servono
+  promo?: boolean;   
+  sconto?: number;  
+  
 }
 
 @Component({

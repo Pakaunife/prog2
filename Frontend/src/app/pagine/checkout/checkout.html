@@ -18,8 +18,8 @@
           <img [src]="'http://localhost:3000/images/prodotti/' + item.image_url" alt="{{item.nome}}" style="width:48px; height:48px; object-fit:cover; border-radius:6px;">
         </td>
         <td>{{item.quantita}}</td>
-        <td>€{{item.prezzo}}</td>
-        <td>€{{item.totale}}</td>
+       <td>€{{ item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo }}</td>
+       <td>€{{ (item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo) * item.quantita }}</td>
       </tr>
     </tbody>
     <tfoot>

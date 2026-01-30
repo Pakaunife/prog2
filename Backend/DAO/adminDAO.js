@@ -41,23 +41,24 @@ class AdminDAO {
   async addProduct(product) {
     const connection = await getConnection();
     const sql = `
-      INSERT INTO products
-        (name, brand_id, category_id, description, price, promo, image_url, bloccato, in_vetrina, disponibilita)
-      VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *`;
-    const params = [
-      product.name,
-      product.brand_id,
-      product.category_id,
-      product.description,
-      product.price,
-      product.promo,
-      product.image_url,
-      product.bloccato || false,
-      product.in_vetrina || false,
-      product.disponibilita || 0
-    ];
+  INSERT INTO products
+    (name, brand_id, category_id, description, price, promo, image_url, bloccato, in_vetrina, disponibilita, sconto)
+  VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+  RETURNING *`;
+const params = [
+  product.name,
+  product.brand_id,
+  product.category_id,
+  product.description,
+  product.price,
+  product.promo,
+  product.image_url,
+  product.bloccato || false,
+  product.in_vetrina || false,
+  product.disponibilita || 0,
+  product.sconto || 0
+];
     const result = await execute(connection, sql, params);
     connection.done();
     return result;
@@ -66,36 +67,45 @@ class AdminDAO {
 
   async updateProduct(id, product) {
     const connection = await getConnection();
-    const sql = `
-      UPDATE products SET
-        name = $1,
-        brand_id = $2,
-        category_id = $3,
-        description = $4,
-        price = $5,
-        promo = $6,
-        image_url = $7,
-        bloccato = $8,
-        in_vetrina = $9,
-        disponibilita = $10
-      WHERE id = $11
-      RETURNING *`;
-    const params = [
-      product.name,
-      product.brand_id,
-      product.category_id,
-      product.description,
-      product.price,
-      product.promo,
-      product.image_url,
-      product.bloccato,
-      product.in_vetrina,
-      product.disponibilita,
-      id
-    ];
+   const sql = `
+  UPDATE products SET
+    name = $1,
+    brand_id = $2,
+    category_id = $3,
+    description = $4,
+    price = $5,
+    promo = $6,
+    image_url = $7,
+    bloccato = $8,
+    in_vetrina = $9,
+    disponibilita = $10,
+    sconto = $11
+  WHERE id = $12
+  RETURNING *`;
+const params = [
+  product.name,
+  product.brand_id,
+  product.category_id,
+  product.description,
+  product.price,
+  product.promo,
+  product.image_url,
+  product.bloccato,
+  product.in_vetrina,
+  product.disponibilita,
+  product.sconto || 0,
+  id
+];
     const result = await execute(connection, sql, params);
     connection.done();
     return result;
+  }
+  // elimina prodotto
+   async deleteProduct(id) {
+    const connection = await getConnection();
+    const sql = 'DELETE FROM products WHERE id = $1';
+    await execute(connection, sql, [id]);
+    connection.done();
   }
 
   // Blocca/Sblocca prodotto

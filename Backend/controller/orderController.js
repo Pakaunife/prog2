@@ -6,31 +6,39 @@ const productDAO = require('../DAO/productDAO');
 exports.createOrder = async (req, res) => {
   const userId = req.user.id;
   const indirizzoId  = req.body.spedizione.indirizzo_id;
-  // Prendi il carrello utente
-  const cart = await cartDAO.getCartByUser(userId);
-  if (!cart.length) return res.status(400).json({ error: 'Carrello vuoto' });
+  const prodotti = req.body.prodotti;
 
-  // Controlla disponibilità e calcola totale
+  if (!prodotti || !prodotti.length) return res.status(400).json({ error: 'Nessun prodotto da ordinare' });
+
+  let disponibilitaMap = {};
   let totale = 0;
-  for (const item of cart) {
-    if (item.quantita > item.disponibilita) {
-      return res.status(400).json({ error: `Prodotto ${item.name} non disponibile in quantità richiesta` });
+
+  for (const item of prodotti) {
+   
+    let prodottoDb = await productDAO.getProductById(item.prodotto_id);
+   
+    if (Array.isArray(prodottoDb)) prodottoDb = prodottoDb[0];
+ 
+    if (prodottoDb && prodottoDb.rows) prodottoDb = prodottoDb.rows[0];
+
+    if (!prodottoDb) {
+      return res.status(400).json({ error: `Prodotto con id ${item.prodotto_id} non trovato` });
     }
-    totale += item.price * item.quantita;
+    if (item.quantita > prodottoDb.disponibilita) {
+      return res.status(400).json({ error: `Prodotto ${prodottoDb.name} non disponibile in quantità richiesta` });
+    }
+    totale += item.prezzo_unitario * item.quantita;
+    disponibilitaMap[item.prodotto_id] = prodottoDb.disponibilita;
   }
 
 
-  // Crea ordine
   const ordine = await orderDAO.createOrder(userId, totale, indirizzoId, 'In elaborazione');
 
-  // Inserisci prodotti nell'ordine e aggiorna disponibilità
-  for (const item of cart) {
-    await orderDAO.addOrderItem(ordine.id, item.prodotto_id, item.quantita, item.price);
-    // Aggiorna disponibilità prodotto
-    await productDAO.updateDisponibilita(item.prodotto_id, item.disponibilita - item.quantita);
+  for (const item of prodotti) {
+    await orderDAO.addOrderItem(ordine.id, item.prodotto_id, item.quantita, item.prezzo_unitario);
+    await productDAO.updateDisponibilita(item.prodotto_id, disponibilitaMap[item.prodotto_id] - item.quantita);
   }
 
-  // Svuota carrello
   await cartDAO.clearCart(userId);
 
   res.json({ message: 'Ordine creato', ordineId: ordine.id });

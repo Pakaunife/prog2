@@ -44,26 +44,51 @@ export class CheckoutComponent {
   ngOnInit() {
     if (this.carrelloService.isLoggedIn()) {
       this.carrelloService.getCarrelloUtente().subscribe(res => {
-        this.carrello = res.map(item => ({
+        this.carrello = res.map(item => {
+        let prezzoFinale = Number(item.price);
+        if (item.promo && item.sconto && item.sconto > 0) {
+          prezzoFinale = +(Number(item.price) * (1 - item.sconto / 100)).toFixed(2);
+        }
+        return {
+          prodotto_id: item.prodotto_id,
           nome: item.name,
           quantita: item.quantita,
           prezzo: Number(item.price),
-          totale: Number(item.price) * item.quantita,
-          image_url: item.image_url
-        }));
-        this.totale = this.carrello.reduce((sum, i) => sum + i.totale, 0);
+          prezzoFinale: prezzoFinale,
+          image_url: item.image_url,
+          promo: item.promo,
+          sconto: item.sconto
+        };
       });
+      this.totale = this.carrello.reduce(
+        (sum, i) => sum + (i.prezzoFinale !== undefined ? i.prezzoFinale : i.prezzo) * i.quantita,
+        0
+      );
+      });
+
       // Carica indirizzi salvati
       this.caricaIndirizzi();
     } else {
-      this.carrello = this.carrelloService.getCarrelloGuest().map((item: any) => ({
-        nome: item.nome,
-        quantita: item.quantita,
-        prezzo: item.prezzo,
-        totale: item.prezzo * item.quantita,
-        image_url: item.image_url
-      }));
-      this.totale = this.carrello.reduce((sum, i) => sum + i.totale, 0);
+      this.carrello = this.carrelloService.getCarrelloGuest().map((item: any) => {
+  let prezzoFinale = item.prezzo;
+  if (item.promo && item.sconto && item.sconto > 0) {
+    prezzoFinale = +(item.prezzo * (1 - item.sconto / 100)).toFixed(2);
+  }
+  return {
+    prodotto_id: item.prodotto_id,
+    nome: item.nome,
+    quantita: item.quantita,
+    prezzo: item.prezzo,
+    prezzoFinale: prezzoFinale,
+    image_url: item.image_url,
+    promo: item.promo,
+    sconto: item.sconto
+  };
+});
+this.totale = this.carrello.reduce(
+  (sum, i) => sum + (i.prezzoFinale !== undefined ? i.prezzoFinale : i.prezzo) * i.quantita,
+  0
+);
     }
   }
 
@@ -119,6 +144,13 @@ export class CheckoutComponent {
       return;
     }
 
+  const prodotti = this.carrello.map(item => ({
+  prodotto_id: item.prodotto_id,
+  quantita: item.quantita,
+  prezzo_unitario: item.prezzoFinale !== undefined ? item.prezzoFinale : item.prezzo
+}));
+
+
    
     
       const datiSpedizione = {
@@ -139,7 +171,8 @@ export class CheckoutComponent {
       scadenza: this.scadenza,
       cvv: this.cvv
     };
-    this.ordineService.creaOrdine(datiSpedizione, datiPagamento).subscribe({
+
+    this.ordineService.creaOrdine(datiSpedizione, datiPagamento, prodotti).subscribe({
       next: () => {
         alert('Ordine e pagamento effettuati!');
         this.router.navigate(['/home']);

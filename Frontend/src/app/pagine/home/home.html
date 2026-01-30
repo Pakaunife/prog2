@@ -10,7 +10,16 @@
     >
       <img [src]="'http://localhost:3000/images/prodotti/' + prodotto.image_url" alt="{{prodotto.name}}" />
       <h3>{{prodotto.name}}</h3>
-      <span class="price">€{{prodotto.price}}</span>
+      <span class="price" *ngIf="prodotto.promo && prodotto.sconto && prodotto.sconto > 0">
+        <span class="prezzo-originale">€{{prodotto.price}}</span>
+        <span class="prezzo-scontato">
+          €{{ (prodotto.price * (1 - prodotto.sconto / 100) | number:'1.2-2') }}
+        </span>
+        <span class="badge-sconto">-{{prodotto.sconto}}%</span>
+      </span>
+      <span class="price" *ngIf="!prodotto.promo || !prodotto.sconto || prodotto.sconto === 0">
+        €{{prodotto.price}}
+      </span>
       <button type="button" (click)="aggiungiAlCarrello(prodotto); $event.stopPropagation(); $event.preventDefault();" >Aggiungi al carrello</button>
     </a>
   </div>

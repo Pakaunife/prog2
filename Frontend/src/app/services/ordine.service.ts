@@ -6,10 +6,11 @@ export class OrdineService {
   constructor(private http: HttpClient) {}
 
   // Crea un nuovo ordine (acquisto)
- creaOrdine(datiSpedizione: any, datiPagamento: any) {
+ creaOrdine(datiSpedizione: any, datiPagamento: any, prodotti: any[]) {
   return this.http.post('/orders', {
     spedizione: datiSpedizione,
-    pagamento: datiPagamento
+    pagamento: datiPagamento,
+    prodotti: prodotti
   }, {
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   });
