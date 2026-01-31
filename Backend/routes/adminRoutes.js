@@ -5,8 +5,6 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const adminController = require('../controller/adminController');
 
 //posts
-router.post('/category', verifyToken, isAdmin, adminController.addCategory);
-router.post('/brand', verifyToken, isAdmin, adminController.addBrand);
 router.post('/product',  verifyToken, isAdmin, adminController.addProduct);
 
  //puts

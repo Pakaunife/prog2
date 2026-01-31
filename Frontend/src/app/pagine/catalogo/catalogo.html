@@ -27,9 +27,9 @@
      <img [src]="'http://localhost:3000/images/prodotti/' + prodotto.image_url" alt="{{prodotto.name}}" />
       <h3>{{prodotto.name}}</h3>
       <span *ngIf="prodotto.promo && (prodotto.sconto || 0) > 0">
-  <span class="prezzo-originale">{{ prodotto.price | number:'1.2-2' }}€</span>
+  <span class="prezzo-originale">{{ prodotto.price  }}€</span>
   <span class="prezzo-scontato">
-    {{ (prodotto.price * (1 - (prodotto.sconto || 0)/100)) | number:'1.2-2' }}€
+    {{ (prodotto.price * (1 - (prodotto.sconto || 0)/100)) }}€
   </span>
   <span class="badge-sconto">-{{ prodotto.sconto || 0 }}%</span>
 </span>

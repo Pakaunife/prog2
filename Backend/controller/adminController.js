@@ -116,23 +116,6 @@ exports.updateProductStock = async (req, res) => {
   }
 };
 
-exports.addCategory = async (req, res) => {
-  try {
-    const result = await adminDAO.addCategory(req.body.name);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.addBrand = async (req, res) => {
-  try {
-    const result = await adminDAO.addBrand(req.body.name);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 exports.getCategories = async (req, res) => {
   try {

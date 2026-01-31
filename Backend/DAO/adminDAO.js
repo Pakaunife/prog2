@@ -130,23 +130,7 @@ const params = [
     return result;
   }
 
-  // Aggiungi categoria
-  async addCategory(name) {
-    const connection = await getConnection();
-    const sql = 'INSERT INTO category (name) VALUES ($1) RETURNING *';
-    const result = await execute(connection, sql, [name]);
-    connection.done();
-    return result;
-  }
-
-  // Aggiungi brand
-  async addBrand(name) {
-    const connection = await getConnection();
-    const sql = 'INSERT INTO brand (name) VALUES ($1) RETURNING *';
-    const result = await execute(connection, sql, [name]);
-    connection.done();
-    return result;
-  }
+ 
 
   async getAllCategories() {
   const connection = await getConnection();
