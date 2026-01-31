@@ -141,7 +141,7 @@
           <td>{{ prodotto.bloccato ? 'Bloccato' : 'Attivo' }}</td>
           <td>
             <button (click)="editProduct(prodotto)">Modifica</button>
-             <button class="danger" (click)="rimuoviProdotto(prodotto.id)">Rimuovi</button>
+            <button class="danger" *ngIf="!prodotto.bloccato" (click)="rimuoviProdotto(prodotto.id)">Rimuovi</button>
           </td>
         </tr>
       </tbody>

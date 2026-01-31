@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-admin',
@@ -10,7 +13,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './admin.html',
   styleUrls: ['./admin.css']
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit, OnDestroy {
   utenti: any[] = [];
   loading = true;
   errore = '';
@@ -27,120 +30,140 @@ export class Admin implements OnInit {
   selectedFile: File | null = null;
   showScontoSelect = false;
   showScontoEditSelect = false;
+  private authSubscription?: Subscription;
+  private storageCheckInterval?: any;
 
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient, 
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-      this.caricaUtenti();
-      this.caricaProdotti();
-      this.caricaCategorie();
-      this.caricaBrand();
+    // Monitora lo stato di autenticazione tramite AuthService
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      if (!user.token || user.ruolo?.toLowerCase() !== 'admin') {
+        this.router.navigate(['/login']);
+      }
+    });
+
+    // Controllo periodico del localStorage 
+    this.storageCheckInterval = setInterval(() => {
+      const token = localStorage.getItem('token');
+      const ruolo = localStorage.getItem('ruolo');
+      if (!token || ruolo?.toLowerCase() !== 'admin') {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }
+    }, 500);
+
+    this.caricaUtenti();
+    this.caricaProdotti();
+    this.caricaCategorie();
+    this.caricaBrand();
+  }
+
+  ngOnDestroy() {
+    this.authSubscription?.unsubscribe();
+    if (this.storageCheckInterval) {
+      clearInterval(this.storageCheckInterval);
+    }
   }
 
   caricaCategorie() {
-  this.http.get<any[]>('/admin/category', { headers: this.getAuthHeaders() }).subscribe({
-    next: categorie => this.categorie = categorie,
-    error: () => this.categorie = []
-  });
-}
-
-caricaBrand() {
-  this.http.get<any[]>('/admin/brand', { headers: this.getAuthHeaders() }).subscribe({
-    next: brand => this.brand = brand,
-    error: () => this.brand = []
-  });
-}
-
-  caricaProdotti() {
-  this.http.get<any[]>('/admin/products', { headers: this.getAuthHeaders() }).subscribe({
-    next: prodotti => this.prodotti = prodotti,
-    error: () => this.prodotti = []
-  });
-}
-
-addProduct(product: any) {
-
-  product.promo = !!product.promo;
-  product.bloccato = !!product.bloccato;
-  product.in_vetrina = !!product.in_vetrina;
-
-  if (this.selectedFile) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1];
-      this.http.post('/admin/product', {
-        ...product,
-        imageBase64: base64,
-        imageFileName: this.selectedFile!.name,
-        image_url: this.selectedFile!.name // se vuoi anche nel form
-      }, { headers: this.getAuthHeaders() }).subscribe({
-        next: () => {
-          this.caricaProdotti();
-          this.selectedFile = null;
-        }
-      });
-    };
-    reader.readAsDataURL(this.selectedFile);
-  } else {
-    this.http.post('/admin/product', product, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => this.caricaProdotti()
+    this.http.get<any[]>('/admin/category', { headers: this.getAuthHeaders() }).subscribe({
+      next: categorie => this.categorie = categorie,
+      error: () => this.categorie = []
     });
   }
-}
 
-editProduct(prodotto: any) {
-  this.prodottoEdit = { ...prodotto };
-  this.showScontoEditSelect = !!this.prodottoEdit.promo;
-}
-triggerFileInput(fileInput: HTMLInputElement) {
-  fileInput.click();
-}
-updateProduct(id: number, product: any) {
+  caricaBrand() {
+    this.http.get<any[]>('/admin/brand', { headers: this.getAuthHeaders() }).subscribe({
+      next: brand => this.brand = brand,
+      error: () => this.brand = []
+    });
+  }
 
-  if (this.selectedFile) {
-    // Leggi la nuova immagine come base64 e invia tutto
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1];
-      product.imageBase64 = base64;
-      product.imageFileName = this.selectedFile!.name;
-      product.image_url = this.selectedFile!.name;
+  caricaProdotti() {
+    this.http.get<any[]>('/admin/products', { headers: this.getAuthHeaders() }).subscribe({
+      next: prodotti => this.prodotti = prodotti,
+      error: () => this.prodotti = []
+    });
+  }
+
+  addProduct(product: any) {
+    product.promo = !!product.promo;
+    product.bloccato = !!product.bloccato;
+    product.in_vetrina = !!product.in_vetrina;
+
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        this.http.post('/admin/product', {
+          ...product,
+          imageBase64: base64,
+          imageFileName: this.selectedFile!.name,
+          image_url: this.selectedFile!.name
+        }, { headers: this.getAuthHeaders() }).subscribe({
+          next: () => {
+            this.caricaProdotti();
+            this.selectedFile = null;
+          }
+        });
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      this.http.post('/admin/product', product, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => this.caricaProdotti()
+      });
+    }
+  }
+
+  editProduct(prodotto: any) {
+    this.prodottoEdit = { ...prodotto };
+    this.showScontoEditSelect = !!this.prodottoEdit.promo;
+  }
+
+  triggerFileInput(fileInput: HTMLInputElement) {
+    fileInput.click();
+  }
+
+  updateProduct(id: number, product: any) {
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        product.imageBase64 = base64;
+        product.imageFileName = this.selectedFile!.name;
+        product.image_url = this.selectedFile!.name;
+        this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
+          next: () => {
+            this.caricaProdotti();
+            this.prodottoEdit = null;
+            this.selectedFile = null;
+          }
+        });
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      product.image_url = this.prodottoEdit.image_url;
       this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
         next: () => {
           this.caricaProdotti();
           this.prodottoEdit = null;
-          this.selectedFile = null;
         }
       });
-    };
-    reader.readAsDataURL(this.selectedFile);
-  } else {
-    // Nessuna nuova immagine: mantieni la vecchia
-    product.image_url = this.prodottoEdit.image_url;
-    this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => {
-        this.caricaProdotti();
-        this.prodottoEdit = null;
-      }
-    });
-  }
-  this.http.put(`/admin/product/${id}`, product, { headers: this.getAuthHeaders() }).subscribe({
-    next: () => {
-      this.caricaProdotti();
-      this.prodottoEdit = null;
     }
-  });
-}
-
-rimuoviProdotto(id: number) {
-  if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
-    this.http.delete(`/admin/product/${id}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => this.caricaProdotti()
-    });
   }
-}
 
+  rimuoviProdotto(id: number) {
+    if (confirm('Sei sicuro di voler bloccare questo prodotto?')) {
+      this.http.delete(`/admin/product/${id}`, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => this.caricaProdotti()
+      });
+    }
+  }
 
   getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -153,7 +176,6 @@ rimuoviProdotto(id: number) {
       next: utenti => {
         this.utenti = utenti;
         this.loading = false;
-        // Precarica il numero di ordini per ogni utente (solo la prima volta)
         utenti.forEach(u => this.caricaOrdiniUtente(u.id, false));
       },
       error: err => {
@@ -170,13 +192,14 @@ rimuoviProdotto(id: number) {
       });
     }
   }
+
   sbloccaUtente(userId: number) {
-  if (confirm('Sei sicuro di voler sbloccare questo utente?')) {
-    this.http.put(`/admin/unblock/${userId}`, {}, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => this.caricaUtenti()
-    });
+    if (confirm('Sei sicuro di voler sbloccare questo utente?')) {
+      this.http.put(`/admin/unblock/${userId}`, {}, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => this.caricaUtenti()
+      });
+    }
   }
-}
 
   gestisciAdmin(userId: number, makeAdmin: boolean) {
     this.http.put(`/admin/set-admin/${userId}`, { admin: makeAdmin }, { headers: this.getAuthHeaders() }).subscribe({
@@ -194,7 +217,6 @@ rimuoviProdotto(id: number) {
   }
 
   caricaOrdiniUtente(userId: number, force: boolean) {
-    // Se già caricati e non forzato, non ricaricare
     if (this.ordiniPerUtente[userId] && !force) return;
     this.http.get<any[]>(`/admin/orders/${userId}`, { headers: this.getAuthHeaders() }).subscribe({
       next: ordini => this.ordiniPerUtente[userId] = ordini,
@@ -202,58 +224,54 @@ rimuoviProdotto(id: number) {
     });
   }
 
-  
   apriDettaglioOrdine(ordine: any) {
-  this.ordineDettaglio = { ...ordine };
-  this.nuovoStatoOrdine = ordine.stato;
-   this.dettagliSpedizione = ordine.dettagli_spedizione || '';
-}
+    this.ordineDettaglio = { ...ordine };
+    this.nuovoStatoOrdine = ordine.stato;
+    this.dettagliSpedizione = ordine.dettagli_spedizione || '';
+  }
 
-aggiornaStatoOrdine() {
-  if (!this.ordineDettaglio) return;
-  this.http.put(`/admin/orders/${this.ordineDettaglio.id}/stato`, 
-    { stato: this.nuovoStatoOrdine, dettagli_spedizione: this.dettagliSpedizione }, 
-    { headers: this.getAuthHeaders() }
-  ).subscribe({
-    next: () => {
-      this.ordineDettaglio.stato = this.nuovoStatoOrdine;
-      this.ordineDettaglio.dettagli_spedizione = this.dettagliSpedizione;
-      // Aggiorna anche la lista ordini
-      const ordini = this.ordiniPerUtente[this.ordineDettaglio.user_id];
-      if (ordini) {
-        const idx = ordini.findIndex(o => o.id === this.ordineDettaglio.id);
-        if (idx > -1) {
-          ordini[idx].stato = this.nuovoStatoOrdine;
-          ordini[idx].dettagli_spedizione = this.dettagliSpedizione;
+  aggiornaStatoOrdine() {
+    if (!this.ordineDettaglio) return;
+    this.http.put(`/admin/orders/${this.ordineDettaglio.id}/stato`, 
+      { stato: this.nuovoStatoOrdine, dettagli_spedizione: this.dettagliSpedizione }, 
+      { headers: this.getAuthHeaders() }
+    ).subscribe({
+      next: () => {
+        this.ordineDettaglio.stato = this.nuovoStatoOrdine;
+        this.ordineDettaglio.dettagli_spedizione = this.dettagliSpedizione;
+        const ordini = this.ordiniPerUtente[this.ordineDettaglio.user_id];
+        if (ordini) {
+          const idx = ordini.findIndex(o => o.id === this.ordineDettaglio.id);
+          if (idx > -1) {
+            ordini[idx].stato = this.nuovoStatoOrdine;
+            ordini[idx].dettagli_spedizione = this.dettagliSpedizione;
+          }
         }
+        this.ordineDettaglio = null;
       }
-      this.ordineDettaglio = null;
-    }
-  });
-}
-
-rimuoviUtente(userId: number) {
-  if (confirm('Sei sicuro di voler eliminare definitivamente questo utente?')) {
-    this.http.delete(`/admin/users/${userId}`, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => this.caricaUtenti()
     });
   }
-}
 
-onFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement;
-  this.selectedFile = input.files?.[0] ?? null;
-}
+  rimuoviUtente(userId: number) {
+    if (confirm('Sei sicuro di voler eliminare definitivamente questo utente?')) {
+      this.http.delete(`/admin/users/${userId}`, { headers: this.getAuthHeaders() }).subscribe({
+        next: () => this.caricaUtenti()
+      });
+    }
+  }
 
-onPromoChange(form: any) {
-  this.showScontoSelect = form.value.promo;
-  if (!this.showScontoSelect) form.value.sconto = 0;
-}
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.selectedFile = input.files?.[0] ?? null;
+  }
 
-onPromoEditChange() {
-  this.showScontoEditSelect = !!this.prodottoEdit?.promo;
-  if (!this.showScontoEditSelect) this.prodottoEdit.sconto = 0;
-}
+  onPromoChange(form: any) {
+    this.showScontoSelect = form.value.promo;
+    if (!this.showScontoSelect) form.value.sconto = 0;
+  }
 
-
+  onPromoEditChange() {
+    this.showScontoEditSelect = !!this.prodottoEdit?.promo;
+    if (!this.showScontoEditSelect) this.prodottoEdit.sconto = 0;
+  }
 }

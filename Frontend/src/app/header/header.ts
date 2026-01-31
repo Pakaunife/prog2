@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -10,18 +12,32 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterModule, CommonModule]
 })
-export class Header {
+export class Header implements OnInit, OnDestroy {
   showSignInMenu: boolean = false;
+  isLoggedIn: boolean = false;
+  isAdminUser: boolean = false;
+  private authSubscription?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
-  get isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+  ngOnInit() {
+    // Sottoscrivi ai cambiamenti dello stato utente
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      this.isLoggedIn = !!user.token;
+      this.isAdminUser = user.ruolo?.toLowerCase() === 'admin';
+    });
+
+    document.addEventListener('click', () => {
+      this.showSignInMenu = false;
+    });
+  }
+
+  ngOnDestroy() {
+    this.authSubscription?.unsubscribe();
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('ruolo');
+    this.authService.logout();
     this.router.navigate(['/home']);
   }
 
@@ -30,18 +46,11 @@ export class Header {
     this.showSignInMenu = !this.showSignInMenu;
   }
 
-  ngOnInit() {
-    document.addEventListener('click', () => {
-      this.showSignInMenu = false;
-    });
-  }
-  
   isAdmin(): boolean {
-  return localStorage.getItem('ruolo')?.toLowerCase() === 'admin';
-}
+    return this.isAdminUser;
+  }
 
-vaiAreaAdmin() {
-  this.router.navigate(['/admin']);
+  vaiAreaAdmin() {
+    this.router.navigate(['/admin']);
+  }
 }
-
- }

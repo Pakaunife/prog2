@@ -101,12 +101,17 @@ const params = [
     return result;
   }
   // elimina prodotto
-   async deleteProduct(id) {
-    const connection = await getConnection();
-    const sql = 'DELETE FROM products WHERE id = $1';
+ async deleteProduct(id) {
+  const connection = await getConnection();
+  try {
+    const sql = 'UPDATE products SET bloccato = true WHERE id = $1';
     await execute(connection, sql, [id]);
     connection.done();
+  } catch (err) {
+    connection.done();
+    throw err;
   }
+}
 
   // Blocca/Sblocca prodotto
   async setProductBlocked(id, blocked) {

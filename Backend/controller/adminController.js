@@ -91,7 +91,7 @@ exports.deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
     await adminDAO.deleteProduct(id);
-    res.json({ success: true });
+    res.json({ success: true, message: 'Prodotto bloccato' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
